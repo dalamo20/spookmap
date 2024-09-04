@@ -1,7 +1,8 @@
 'use client'
 import Link from 'next/link';
-import React from 'react';
-import { Map, GoogleApiWrapper, Marker } from "google-maps-react";
+import React, { useState } from 'react';
+// import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+// import { useLoadScript, GoogleMap as GoogleMapGL } from '@googlemaps/react-map-gl';
 
 const mapStyles = {
     width: '100%',
@@ -9,34 +10,29 @@ const mapStyles = {
 };
 
 const GoogleMaps = () => {
+//     const [map, setMap] = useState(null);
+//     const { isLoaded } = useLoadScript({
+//     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+//     libraries: ["places"]
+//   });
   return (
     <main>
         <Link href={"/"}>Home</Link>
         <div>GoogleMaps</div>
-        <Map
-            google={window.google}
+        {/* {isLoaded && (
+          <GoogleMapGL
+            mapContainerClassName="map-container"
+            center={[19.020145856138136, -98.24006775697993]}
             zoom={17}
-            style={mapStyles}
-            initialCenter={
-                {
-                    lat: 19.020145856138136, 
-                    lng: -98.24006775697993
-                }
-            }
-        >
+            onLoad={setMap}
+          >
             <Marker
-              position={
-                  {
-                      lat: 19.020145856138136, 
-                      lng: -98.24006775697993
-                  }
-              }
-           />
-        </Map>
+              position={[19.020145856138136, -98.24006775697993]}
+            />
+          </GoogleMapGL>
+        )} */}
     </main>
   )
 }
 
-export default GoogleApiWrapper({
-    apiKey: ""
-})(GoogleMaps);
+export default GoogleMaps;

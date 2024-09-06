@@ -34,3 +34,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+### OAuth Google
+
+<img width="306" alt="Screenshot 2024-09-05 at 9 30 04 PM" src="https://github.com/user-attachments/assets/4892f06f-ac04-4c8b-9a78-6ba2303ab747">
+
+- Demonstrating a successful login. I am able to grab the user session information from Google and display it on the screen.

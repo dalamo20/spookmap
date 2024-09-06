@@ -37,6 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ### OAuth Google
 
-<img width="306" alt="Screenshot 2024-09-05 at 9 30 04 PM" src="https://github.com/user-attachments/assets/4892f06f-ac04-4c8b-9a78-6ba2303ab747">
-
-- Demonstrating a successful login. I am able to grab the user session information from Google and display it on the screen.
+<img width="693" alt="Screenshot 2024-09-05 at 11 02 46 PM" src="https://github.com/user-attachments/assets/2b4f23ad-882e-4c7f-aa95-493ab00cb323">
+- Google OAuth Authentication: The user can sign in via Google using NextAuth's signIn() function with Google as the authentication provider configured in authOptions.ts.
+- Session Management: The useSession() hook from NextAuth checks if a user is logged in and provides session data (e.g., name, image) to the Dashboard component.
+- Conditional UI Rendering: If a user is authenticated, their details and a "Sign Out" button are displayed; otherwise, a "Sign in with Google" button is shown.

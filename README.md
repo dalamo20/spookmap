@@ -35,9 +35,17 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-### OAuth Google
+## OAuth Google
 
 <img width="693" alt="Screenshot 2024-09-05 at 11 02 46 PM" src="https://github.com/user-attachments/assets/2b4f23ad-882e-4c7f-aa95-493ab00cb323">
+
 - Google OAuth Authentication: The user can sign in via Google using NextAuth's signIn() function with Google as the authentication provider configured in authOptions.ts.
 - Session Management: The useSession() hook from NextAuth checks if a user is logged in and provides session data (e.g., name, image) to the Dashboard component.
 - Conditional UI Rendering: If a user is authenticated, their details and a "Sign Out" button are displayed; otherwise, a "Sign in with Google" button is shown.
+
+## Google Maps API
+
+<img width="914" alt="Screenshot 2024-09-19 at 4 50 13 PM" src="https://github.com/user-attachments/assets/f3b2f794-d793-4c9b-a85e-4f8f8d8e200a">
+
+- Initialization of Google Maps: I'm using the @googlemaps/js-api-loader library to load the Google Maps API.
+- A new Map object is created using the loaded API and attaches it to a <div> element which is centered in downtown Chicago.

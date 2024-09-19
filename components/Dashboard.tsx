@@ -12,7 +12,7 @@ const Dashboard = () => {
             <h1>Bienvenue, {session.user?.name} </h1>
             {JSON.stringify(session)}
             <button onClick={() => signOut()}>Sign Out</button>
-
+            
         </>
     ) : (
         <>

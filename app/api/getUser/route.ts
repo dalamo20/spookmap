@@ -10,4 +10,4 @@ export async function GET(){
     }
     return NextResponse.json({ success: session }, { status: 200 })
 }
-//localhost:3000/api/getUser
+//localhost:3000/api/getUser - server side 

@@ -45,7 +45,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## Google Maps API
 
-<img width="914" alt="Screenshot 2024-09-19 at 4 50 13 PM" src="https://github.com/user-attachments/assets/f3b2f794-d793-4c9b-a85e-4f8f8d8e200a">
+<img width="811" alt="Screenshot 2024-09-19 at 10 15 16 PM" src="https://github.com/user-attachments/assets/a01f1ea3-d7d3-47b0-bee0-777226c48ccb">
 
 - Initialization of Google Maps: I'm using the @googlemaps/js-api-loader library to load the Google Maps API.
-- A new Map object is created using the loaded API and attaches it to a <div> element which is centered in downtown Chicago.
+- A new Map object is created using the loaded API and attaches it to a div element which is centered in downtown Chicago.
+
+- Google Places: Added this feature so that users can search locations.
+- Marker: Searching a location causes the marker change places. It is restricted to the US only at the moment.
+- InfoCard: The info card will serve as a content holder for more features such as location name, image, etc.

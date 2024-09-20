@@ -90,6 +90,12 @@ a {
   text-decoration: none;
 }
 
+.map_infocard_title{
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: blue;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

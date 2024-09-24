@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { Library, Loader } from '@googlemaps/js-api-loader';
 import { useSession } from 'next-auth/react';
-import { useJsApiLoader } from '@react-google-maps/api'
+import { useJsApiLoader } from '@react-google-maps/api';
+import hauntedPlaces from '../public/haunted_places.json';
 
 const Map = () => {
     const { data: session } = useSession();
-    const libs: Library[] = ["core", "maps", "places", "marker"];
+    const libs: Library[] = ["core", "maps", "places", "marker", "geometry"];
 
     const [map, setMap] = useState<google.maps.Map | null>(null);
     const [autoComplete, setAutoComplete] = useState<google.maps.places.Autocomplete | null>(null);
@@ -16,27 +17,14 @@ const Map = () => {
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
         libraries: libs
-    })
-
-    const buildMapInfoCardContent = (title: string, body: string) => {
-        return `
-            <div class='map_infocard_content'>
-                <div class='map_infocard_title'>
-                    ${title}
-                </div>
-                <div class='map_infocard_body'>
-                    ${body}
-                </div>
-            </div>
-        `;
-    }
+    });
 
     const mapRef = React.useRef<HTMLDivElement>(null);
     const placeAutoCompRef = React.useRef<HTMLInputElement>(null);
 
-    useEffect( () => {
+    useEffect(() => {
         if (!session) return; // if not authorized, do not show map
-        if(isLoaded){
+        if (isLoaded) {
             const mapOptions = {
                 center: {
                     lat: 41.8781, 
@@ -44,73 +32,73 @@ const Map = () => {
                 },
                 zoom: 17, 
                 mapId: "NEXTJS_MAPID"
-            }
-            // sets the map
+            };
+
+            // Initialize map
             const googleMap = new google.maps.Map(mapRef.current as HTMLDivElement, mapOptions);
-            // creates a boundary
+            setMap(googleMap);
+
+            // Setup autocomplete
             const usBoundary = new google.maps.LatLngBounds(
-                new google.maps.LatLng({ 
-                    lat: 24.541466, // Southwest corner
-                    lng: -124.838851  // Southwest corner
-                }),
-                new google.maps.LatLng({ 
-                    lat: 49.188608,  // Northeast corner
-                    lng: -66.941772   // Northeast corner
-                })
+                new google.maps.LatLng({ lat: 24.541466, lng: -124.838851 }),
+                new google.maps.LatLng({ lat: 49.188608, lng: -66.941772 })
             );
-            // autocomplete feature
+
             const googleAutoComplete = new google.maps.places.Autocomplete(placeAutoCompRef.current as HTMLInputElement, {
                 bounds: usBoundary,
                 fields: ['formatted_address', 'geometry', 'name'],
-                componentRestrictions: {
-                    country: ['us']
+                componentRestrictions: { country: ['us'] }
+            });
+
+            googleAutoComplete.addListener('place_changed', () => {
+                const place = googleAutoComplete.getPlace();
+                const location = place.geometry?.location;
+                if (location) {
+                    googleMap.setCenter(location);
+                    displayHauntedPlaces(googleMap, location);
                 }
             });
+
             setAutoComplete(googleAutoComplete);
-            setMap(googleMap);
         }
     }, [session, isLoaded]);
 
-    useEffect(() => {
-        if(autoComplete){
-            autoComplete.addListener('place_changed', () => {
-                const place = autoComplete.getPlace();
-                console.log(place);
-                setPlace(place.formatted_address as string);
-                const position = place.geometry?.location;
+    const displayHauntedPlaces = (map: google.maps.Map, userLocation: google.maps.LatLng) => {
+        hauntedPlaces.forEach((place: any) => {
+            const placeLocation = new google.maps.LatLng(place.latitude, place.longitude);
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, placeLocation);
 
-                if (position){
-                    setMarker(position, place.name!);
-                }
-            })
-        }
-    }, [autoComplete])
-
-    // sets marker to searched location
-    function setMarker(location: google.maps.LatLng, name: string){
-        if (!map) return;
-        map.setCenter(location);
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-            map: map,
-            position: location,
-            title: "Marker"
-        })
-
-        const infoCard = new google.maps.InfoWindow({
-            position: location,
-            content: buildMapInfoCardContent(name, name),
-            maxWidth: 200
-        })
-
-        infoCard.open({
-            map: map,
-            anchor: marker
+            // radius distance is meters
+            if (distance < 20000) {
+                createMarker(map, placeLocation, place.location, place.description);
+            }
         });
-    }
+    };
+
+    const createMarker = (map: google.maps.Map, position: google.maps.LatLng, title: string, description: string) => {
+        const marker = new google.maps.Marker({
+            position,
+            map,
+            title,
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div>
+                    <h3>${title}</h3>
+                    <p>${description}</p>
+                </div>
+            `,
+        });
+
+        marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+        });
+    };
 
     return session ? (
         <>
-        <input ref={placeAutoCompRef}/>
+        <input ref={placeAutoCompRef} placeholder="Enter a location" />
         <label>{place}</label>
         {isLoaded ?
             <div style={{ height: '600px' }} ref={mapRef}></div> :

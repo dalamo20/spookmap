@@ -76,7 +76,7 @@ const Map = () => {
     };
 
     const createMarker = (map: google.maps.Map, position: google.maps.LatLng, title: string, description: string) => {
-        const marker = new google.maps.Marker({
+        const marker = new google.maps.marker.AdvancedMarkerElement({
             position,
             map,
             title,
@@ -87,8 +87,28 @@ const Map = () => {
                 <div>
                     <h3>${title}</h3>
                     <p>${description}</p>
+                    <button id="savePlaceBtn">Save to Collection</button>
                 </div>
             `,
+        });
+
+        google.maps.event.addListener(infoWindow, 'domready', () => {
+            document.getElementById('savePlaceBtn').addEventListener('click', () => {
+                // this saves place to collection
+                fetch('/api/places/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: session?.user?.email, 
+                        placeId: title,
+                        placeName: title,
+                        placeDescription: description
+                    })
+                }).then(response => response.json())
+                .then(data => console.log(data));
+            });
         });
 
         marker.addListener("click", () => {

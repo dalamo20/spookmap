@@ -29,7 +29,7 @@ const SignIn = () => {
         <div>
             <h1>Sign in</h1>
 
-            <button onClick={() => signIn("google")}>Sign in with Google</button>
+            <button onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>Sign in with Google</button>
 
             <h2>OR sign in with other email</h2>
             <form onSubmit={handleCredentialsSignIn}>

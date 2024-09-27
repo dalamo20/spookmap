@@ -53,3 +53,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - Google Places: Added this feature so that users can search locations.
 - Marker: Searching a location causes the marker change places. It is restricted to the US only at the moment.
 - InfoCard: The info card will serve as a content holder for more features such as location name, image, etc.
+
+## MySQL Connection
+
+<img width="748" alt="dbConnection" src="https://github.com/user-attachments/assets/17e29529-9fe3-438f-96a6-b5f885c38eba">
+<img width="754" alt="dbSchemas" src="https://github.com/user-attachments/assets/a65d5527-3133-4703-bf64-fedc336f5f23">
+
+- DB Config: Created a connection pool in the configv file and stored credentials securely in .env.local.
+- Custom API Route: Custom route created for user registration and authentication using bcrypt to hash passwords.
+- Schema: Schema for users (only for customized registrations & NOT GOOGLE oauth) & user_places (this will be used for map data).

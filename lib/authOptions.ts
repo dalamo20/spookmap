@@ -16,16 +16,16 @@ export const authOptions: NextAuthOptions = {
               email: { label: "Email", type: "email" },
               password: { label: "Password", type: "password" },
           },
-          async authorize(credentials, req) {
+          async authorize(credentials) {
               const { email, password } = credentials as { email: string, password: string };
 
-              // Select user from database
-              const [rows]: any = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
-              if (rows.length === 0) {
+              // Select user from db
+              const [users]: any = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+              if (users.length === 0) {
                   throw new Error("No user found with this email");
               }
 
-              const user = rows[0];
+              const user = users[0];
               const isValidPassword = await bcrypt.compare(password, user.password);
               if (!isValidPassword) {
                   throw new Error("Invalid password");

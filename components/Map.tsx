@@ -38,12 +38,13 @@ const Map = () => {
             const googleMap = new google.maps.Map(mapRef.current as HTMLDivElement, mapOptions);
             setMap(googleMap);
 
-            // Setup autocomplete
+            // Restrict search to US only
             const usBoundary = new google.maps.LatLngBounds(
                 new google.maps.LatLng({ lat: 24.541466, lng: -124.838851 }),
                 new google.maps.LatLng({ lat: 49.188608, lng: -66.941772 })
             );
 
+            // Setup autocomplete
             const googleAutoComplete = new google.maps.places.Autocomplete(placeAutoCompRef.current as HTMLInputElement, {
                 bounds: usBoundary,
                 fields: ['formatted_address', 'geometry', 'name'],
@@ -68,7 +69,7 @@ const Map = () => {
             const placeLocation = new google.maps.LatLng(place.latitude, place.longitude);
             const distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, placeLocation);
 
-            // radius distance is meters
+            // Radius distance is meters
             if (distance < 20000) {
                 createMarker(map, placeLocation, place.location, place.description);
             }

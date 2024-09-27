@@ -1,15 +1,23 @@
-import { authOptions } from "@/lib/authOptions";
-import NextAuth from "next-auth";
-import GoogleProvider from 'next-auth/providers/google';
-
-
-const handler = NextAuth(authOptions);
+import db from "@/app/api/config/route";
+import bcrypt from "bcrypt";
 
 export async function POST(request: Request) {
-    try { 
+    try {
         const { email, password } = await request.json();
-        console.log({email, password});
-    } catch(error: any){
-        console.log(error.messsage);
+
+        // Does email exist?
+        const [existingUsers]: any = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        if (existingUsers.length > 0) {
+            return new Response(JSON.stringify({ error: "User already exists" }), { status: 400 });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Store the user in db
+        await db.execute('INSERT INTO users (email, password) VALUES (?, ?)', [email, hashedPassword]);
+
+        return new Response(JSON.stringify({ success: "User created successfully" }), { status: 201 });
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }

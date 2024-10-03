@@ -16,6 +16,7 @@ const Dashboard = () => {
         <>
           <img src={session.user?.image as string} alt="User Image" />
           <h1>Bienvenue, {session.user?.name}</h1>
+          <button onClick={() => window.location.href = '/collections'}>Collections</button>
           <button onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</button>
           <Map /> 
         </>

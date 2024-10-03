@@ -1,4 +1,4 @@
-import db from "../config/route";
+import db from "@/app/api/config/route";
 
 export default async function handler(req, res) {
     const { userId } = req.query;

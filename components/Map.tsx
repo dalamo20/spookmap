@@ -95,7 +95,7 @@ const Map = () => {
 
         google.maps.event.addListener(infoWindow, 'domready', () => {
             document.getElementById('savePlaceBtn').addEventListener('click', () => {
-                // this saves place to collection
+                // This saves place to collection
                 fetch('/api/places/create', {
                     method: 'POST',
                     headers: {
@@ -103,14 +103,50 @@ const Map = () => {
                     },
                     body: JSON.stringify({
                         userId: session?.user?.email, 
-                        placeId: title,
                         placeName: title,
-                        placeDescription: description
+                        placeDescription: description,
+                        latitude: position.lat(),
+                        longitude: position.lng()
                     })
                 }).then(response => response.json())
                 .then(data => console.log(data));
             });
         });
+
+        google.maps.event.addListener(infoWindow, 'domready', () => {
+            document.getElementById('savePlaceBtn').addEventListener('click', async () => {
+                // Fetch all collections of user
+                const collectionsRes = await fetch(`/api/collections?userId=${session?.user?.email}`);
+                const collectionsData = await collectionsRes.json();
+                // Show collections in dropdown
+                const collectionSelect = prompt("Enter the collection name or choose from: " + collectionsData.collections.map(c => c.name).join(', '));
+        
+                // Create or save to an existing collection
+                if (collectionSelect) {
+                    // Checks if collection is new
+                    const existingCollection = collectionsData.collections.find(c => c.name === collectionSelect);
+                    let collectionId = existingCollection?.id;
+        
+                    if (!collectionId) {
+                        // Creates a new collection
+                        const newCollectionRes = await fetch('/api/collections/create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name: collectionSelect, userId: session?.user?.email })
+                        });
+                        const newCollectionData = await newCollectionRes.json();
+                        collectionId = newCollectionData.collectionId;
+                    }
+        
+                    // Save place to a collection
+                    fetch('/api/collections/addPlace', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ collectionId, placeId: title })
+                    });
+                }
+            });
+        });        
 
         marker.addListener("click", () => {
             infoWindow.open(map, marker);

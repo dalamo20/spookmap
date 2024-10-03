@@ -1,4 +1,4 @@
-import db from "../config/route";
+import db from "../../config/route";
 
 export default async function handler(req, res) {
     if (req.method === 'DELETE') {

@@ -6,17 +6,22 @@ import { useSession } from 'next-auth/react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import hauntedPlaces from '../public/haunted_places.json';
 
+const libraries: Library[] = ["core", "maps", "places", "marker", "geometry"];
+
 const Map = () => {
     const { data: session } = useSession();
-    const libs: Library[] = ["core", "maps", "places", "marker", "geometry"];
-
     const [map, setMap] = useState<google.maps.Map | null>(null);
     const [autoComplete, setAutoComplete] = useState<google.maps.places.Autocomplete | null>(null);
     const [place, setPlace] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false);
+    const [collections, setCollections] = useState<any[]>([]);
+    const [newCollectionName, setNewCollectionName] = useState(''); 
+    const [selectedCollectionId, setSelectedCollectionId] = useState('');
+    const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
 
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-        libraries: libs
+        libraries
     });
 
     const mapRef = React.useRef<HTMLDivElement>(null);
@@ -65,6 +70,8 @@ const Map = () => {
     }, [session, isLoaded]);
 
     const displayHauntedPlaces = (map: google.maps.Map, userLocation: google.maps.LatLng) => {
+        if (!hauntedPlaces) return;
+
         hauntedPlaces.forEach((place: any) => {
             const placeLocation = new google.maps.LatLng(place.latitude, place.longitude);
             const distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, placeLocation);
@@ -89,68 +96,107 @@ const Map = () => {
                     <h3>${title}</h3>
                     <p>${description}</p>
                     <button id="savePlaceBtn">Save to Collection</button>
+                    <div id="dropdownContainer"></div>
                 </div>
             `,
         });
 
-        google.maps.event.addListener(infoWindow, 'domready', () => {
-            document.getElementById('savePlaceBtn').addEventListener('click', () => {
-                // This saves place to collection
-                fetch('/api/places/create', {
+        google.maps.event.addListener(infoWindow, 'domready', async () => {
+            document.getElementById('savePlaceBtn').addEventListener('click', async () => {
+                // Save place to the location table
+                const response = await fetch('/api/places/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        userId: session?.user?.email, 
+                        userEmail: session?.user?.email, 
                         placeName: title,
                         placeDescription: description,
                         latitude: position.lat(),
                         longitude: position.lng()
-                    })
-                }).then(response => response.json())
-                .then(data => console.log(data));
-            });
-        });
+                    }),
+                });
 
-        google.maps.event.addListener(infoWindow, 'domready', () => {
-            document.getElementById('savePlaceBtn').addEventListener('click', async () => {
-                // Fetch all collections of user
-                const collectionsRes = await fetch(`/api/collections?userId=${session?.user?.email}`);
-                const collectionsData = await collectionsRes.json();
-                // Show collections in dropdown
-                const collectionSelect = prompt("Enter the collection name or choose from: " + collectionsData.collections.map(c => c.name).join(', '));
-        
-                // Create or save to an existing collection
-                if (collectionSelect) {
-                    // Checks if collection is new
-                    const existingCollection = collectionsData.collections.find(c => c.name === collectionSelect);
-                    let collectionId = existingCollection?.id;
-        
-                    if (!collectionId) {
-                        // Creates a new collection
-                        const newCollectionRes = await fetch('/api/collections/create', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ name: collectionSelect, userId: session?.user?.email })
-                        });
-                        const newCollectionData = await newCollectionRes.json();
-                        collectionId = newCollectionData.collectionId;
-                    }
-        
-                    // Save place to a collection
-                    fetch('/api/collections/addPlace', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ collectionId, placeId: title })
-                    });
+                const savedPlace = await response.json();
+                if (savedPlace && savedPlace.id) {
+                    setSelectedPlace(savedPlace);  
+                    setShowModal(true);  
+                    fetchCollections();  
+                } else {
+                    console.error('Error saving place:', savedPlace);
                 }
             });
-        });        
+        });
 
         marker.addListener("click", () => {
             infoWindow.open(map, marker);
         });
+    };
+
+    // Fetch user's collections from the API
+    const fetchCollections = async () => {
+        const response = await fetch(`/api/collections?userId=${session?.user?.email}`);
+        const data = await response.json();
+        setCollections(data.collections);
+    };
+
+    // Handle saving the place to a selected or new collection
+    const savePlaceToCollection = async () => {
+        let collectionId = selectedCollectionId;
+
+        if (!collectionId && newCollectionName) {
+            try {
+                console.log('Creating a new collection with name:', newCollectionName, 'and userEmail:', session?.user?.email);
+                
+                const newCollectionRes = await fetch('/api/collections/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newCollectionName, userEmail: session?.user?.email }),
+                });
+                
+                const newCollectionData = await newCollectionRes.json();
+                console.log('New Collection Created:', newCollectionData);
+                
+                if (newCollectionData.success) {
+                    collectionId = newCollectionData.collectionId;
+                    setCollections([...collections, { id: collectionId, name: newCollectionName }]);
+                    setNewCollectionName(''); 
+                    setShowModal(false);       
+                } else {
+                    console.error('Failed to create collection:', newCollectionData);
+                }
+            } catch (error) {
+                console.error('Error creating collection:', error);
+            }
+        }
+
+        if (!collectionId) {
+            console.error('No collection selected or created.');
+            return;
+        }
+    
+        if (!selectedPlace || !selectedPlace.id) {
+            console.error('No place selected to save.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/collections/addPlace', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ collectionId, placeId: selectedPlace.id }),
+            });
+    
+            if (response.ok) {
+                console.log('Place successfully saved to collection.');
+                setShowModal(false); // Close the modal
+            } else {
+                console.error('Error saving place to collection:', await response.json());
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+        }
     };
 
     return session ? (
@@ -161,8 +207,40 @@ const Map = () => {
             <div style={{ height: '600px' }} ref={mapRef}></div> :
             <p>Loading ...</p>
         }
+        {/* Modal for creating/selecting collection */}
+        {showModal && (
+            <div className="modal">
+                <div className="modal-content">
+                    <h2>Save to Collection</h2>
+                    <select
+                        value={selectedCollectionId}
+                        onChange={(e) => setSelectedCollectionId(e.target.value)}
+                    >
+                        <option value="">Create New Collection</option>
+                        {collections && collections.length > 0 ? (
+                            collections.map(collection => (
+                            <option key={collection.id} value={collection.id}>{collection.name}</option>
+                            ))
+                        ) : (
+                        <option disabled> No collections available</option>
+                    )}
+                    </select>
+                    {!selectedCollectionId && (
+                        <input
+                            type="text"
+                            placeholder="New Collection Name"
+                            value={newCollectionName}
+                            onChange={(e) => setNewCollectionName(e.target.value)}
+                        />
+                    )}
+                    <button onClick={savePlaceToCollection} disabled={!newCollectionName && !selectedCollectionId}>Save</button>
+                    <button onClick={() => setShowModal(false)}>Cancel</button>
+                </div>
+            </div>
+        )}
         </>
-    ) : (
+    ) 
+    : (
         <p>Please log in to view the map.</p>
     );
 }

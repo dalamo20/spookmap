@@ -1,44 +1,74 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 
 const Collections = () => {
   const { data: session } = useSession();
-  const [collections, setCollections] = useState([]);
+  const [collections, setCollections] = useState<{id: number, name: string}[]>([]);
   const [newCollectionName, setNewCollectionName] = useState('');
+  const router = useRouter();
 
-  // Fetch users collections
+  // Fetch users collections on render
   useEffect(() => {
     if (session) {
-      fetch(`/api/collections?userId=${session.user?.email}`)
-        .then(res => res.json())
-        .then(data => setCollections(data.collections));
+      console.log('Session Data:', session);
+      console.log('User Email:', session?.user?.email); 
+      fetchCollections();
     }
   }, [session]);
 
+  const fetchCollections = async () => {
+    try {
+      const res = await fetch(`/api/collections?userId=${session?.user?.email}`);
+      const data = await res.json();
+      console.log('Fetched Collections:', data); 
+      setCollections(data.collections);
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+    }
+  };
+
   // Create a collection
   const createCollection = async () => {
-    const res = await fetch('/api/collections/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newCollectionName, userId: session?.user?.email })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      setCollections([...collections, { id: data.collectionId, name: newCollectionName }]);
-      setNewCollectionName('');
+    try {
+      const res = await fetch('/api/collections/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCollectionName, userId: session?.user?.email })
+      });
+      
+      const data = await res.json();
+      console.log('Created Collection:', data);
+      if (data.success) {
+        setCollections([...collections, { id: data.collectionId, name: newCollectionName }]);
+        setNewCollectionName('');
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
     }
   };
 
   // Delete a collection
   const deleteCollection = async (collectionId: number) => {
-    await fetch('/api/collections/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ collectionId })
-    });
-    setCollections(collections.filter(col => col.id !== collectionId));
+    try {
+      await fetch('/api/collections/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ collectionId })
+      });
+
+      console.log('Deleted Collection ID:', collectionId);
+      setCollections(collections.filter(col => col.id !== collectionId));
+
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+    }
+  };
+
+  // Navigate inside selected collection 
+  const viewCollection = (collectionId: number) => {
+    router.push(`/collections/${collectionId}`);
   };
 
   return session ? (
@@ -54,14 +84,16 @@ const Collections = () => {
         <button onClick={createCollection}>Create Collection</button>
         <button onClick={() => window.location.href = '/dashboard'}>Dashboard</button>
       </div>
-      <ul>
+
+      <div className="collections-grid">
         {collections.map(collection => (
-          <li key={collection.id}>
-            <h3>{collection.name}</h3>
-            <button onClick={() => deleteCollection(collection.id)}>Delete</button>
-          </li>
+          <div key={collection.id} className="collection-card" >
+            {/* <h3 onClick={() => window.location.href = `/collections/${collection.id}`}>{collection.name}</h3> */}
+            <h3 onClick={() => viewCollection(collection.id)}>{collection.name}</h3>
+            <button onClick={() => deleteCollection(collection.id)} className="delete-btn">Delete</button>          
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   ) : (
     <p>Please log in to manage your collections.</p>

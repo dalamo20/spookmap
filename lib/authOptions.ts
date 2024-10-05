@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
               if (!isValidPassword) {
                   throw new Error("Invalid password");
               }
-              return { id: user.id, email: user.email };
+              return { email: user.email };
           },
       }),
   ],
@@ -40,15 +40,26 @@ export const authOptions: NextAuthOptions = {
       newUser: "/auth/register" 
   },
   callbacks: {
+    async signIn({ user, account }) {
+        if (account.provider === 'google') {
+          // Check if the user is in users table
+          const [existingUser]: any = await db.execute('SELECT * FROM users WHERE email = ?', [user.email]);
+          if (existingUser.length === 0) {
+            // Insert Google user in users table
+            await db.execute('INSERT INTO users (email) VALUES (?)', [user.email]);
+          }
+        }
+        return true;
+      },
       async session({ session, token }) {
           if (token) {
-              session.user.id = token.sub;
+              session.user.email = token.email;
           }
           return session;
       },
       async jwt({ token, user }) {
           if (user) {
-              token.sub = user.id;
+              token.email = user.email;
           }
           return token;
       },

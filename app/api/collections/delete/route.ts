@@ -4,9 +4,6 @@ export async function POST(request: Request) {
     try {
         const { collectionId } = await request.json();
 
-        // Delete all locations in collection
-        await db.execute('DELETE FROM collection_places WHERE collection_id = ?', [collectionId]);
-
         // Delete a single collection
         await db.execute('DELETE FROM collections WHERE id = ?', [collectionId]);
 

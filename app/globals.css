@@ -90,6 +90,60 @@ a {
   text-decoration: none;
 }
 
+/* Welcome Page */
+h1 {
+  font-size: 64px;
+  line-height: 64px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  color: white;
+  text-align: center;
+  margin-top: 44px; 
+}
+
+.custom-paragraph {
+  font-size: 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400; 
+  color: #FFFFFF;
+  text-align: center;
+  margin-top: 22px; 
+}
+
+.sign-in-button {
+  width: 438px;
+  height: 52px;
+  font-size: 16px;
+  color: black;
+  background-color: white;
+  border-radius: 24px;
+  padding: 16px 20px;
+  box-shadow: 0px 4px 22px rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  margin-top: 48px;
+}
+
+.create-account-button {
+  width: 438px;
+  height: 52px;
+  background: none;
+  border: 1px solid white;
+  border-radius: 24px;
+  padding: 16px 20px;
+  box-shadow: 0px 4px 22px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  text-align: center;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  margin-top: 20px;
+}
+/* End of Welcome Page */
+
+/* Map */
 .map_infocard_title{
   font-size: 1.25rem;
   font-weight: bold;

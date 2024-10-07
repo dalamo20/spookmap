@@ -107,7 +107,6 @@ h1 {
   font-weight: 400; 
   color: #FFFFFF;
   text-align: center;
-  margin-top: 22px; 
 }
 
 .sign-in-button {
@@ -142,6 +141,103 @@ h1 {
   margin-top: 20px;
 }
 /* End of Welcome Page */
+
+/* Sign In Page */
+.sign-in-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh;
+  text-align: center;
+}
+
+.signInH1 {
+  font-size: 64px;
+  margin-bottom: 43px; 
+}
+
+.custom-sign-in-form {
+  display: flex;
+  flex-direction: column; 
+  gap: 24px; 
+}
+
+input {
+  height: 52px; 
+  padding: 0 12px;
+  background-color: #fff; 
+  color: black;
+  border: none; 
+  border-radius: 8px; 
+  outline: none; 
+}
+
+input:focus {
+  border: 2px solid #ccc;
+}
+
+.sign-in-form {
+  width: 438px;
+  height: 52px;
+  font-size: 16px;
+  color: black;
+  background-color: white;
+  border-radius: 24px;
+  padding: 16px 20px;
+  box-shadow: 0px 4px 22px rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+}
+
+.continueP {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 438px;
+  color: gray;
+  margin: 43px 0 22px; 
+  position: relative;
+}
+
+.continueP::before,
+.continueP::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: white; 
+  margin: 0 10px;
+}
+
+.sign-in-google {
+  width: 438px;
+  height: 52px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: black;
+  border-radius: 24px;
+  padding: 16px 20px;
+  box-shadow: 0px 4px 22px rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+}
+
+.sign-in-google span {
+  margin-left: 20px; 
+}
+
+.createLinkP{
+  margin-top: 50px;
+}
+
+.createLink {
+  color: #0083FF;
+  font-weight: 600;
+}
+/* End of Sign In Page */
 
 /* Map */
 .map_infocard_title{

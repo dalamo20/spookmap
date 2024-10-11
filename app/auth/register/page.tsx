@@ -35,9 +35,9 @@ const Register = () => {
     };
 
     return (
-        <div>
-            <h1>Create Account</h1>
-            <form onSubmit={handleRegistration}>
+        <div className="sign-in-container">
+            <h1 className="signInH1">Create Account</h1>
+            <form onSubmit={handleRegistration} className="custom-sign-in-form">
                 <input
                     type="email"
                     placeholder="Email"
@@ -59,7 +59,7 @@ const Register = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                 />
-                <button type="submit">Create Account</button>
+                <button type="submit" className="sign-in-form">Create Account</button>
             </form>
 
             {error && <p style={{ color: "red" }}>{error}</p>}

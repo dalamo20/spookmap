@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const Collections = () => {
   const { data: session } = useSession();
@@ -72,17 +73,39 @@ const Collections = () => {
   };
 
   return session ? (
-    <div>
-      <h1>Manage Your Collections</h1>
-      <div>
+    <>
+    <div className='collections-container'>
+      <div className="nav-div">
+            <div className="home-content">
+              <Image
+                src="/images/ghost.png"
+                alt="Spooky background image"
+                width={44}
+                height={44}
+                className="ghost-image"
+                onClick={() => window.location.href = '/home'}
+              />
+              <p className="spookmap-text" onClick={() => window.location.href = '/home'} >SPOOKMAP</p>
+            </div>
+
+            <div className="btn-cont">
+              <button className="collections-btn home-btn" onClick={() => window.location.href = '/home'}>
+                <span>Home</span>
+              </button>
+              <a className="signOutBtn" onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</a>
+            </div>
+          </div>
+      <div className='manage-container'>
+      <p className='cust-heading'>Manage Your Collections</p>
+      <div className='coll-input-container'>
         <input
-          type="text"
-          placeholder="New Collection Name"
-          value={newCollectionName}
-          onChange={(e) => setNewCollectionName(e.target.value)}
-        />
-        <button onClick={createCollection}>Create Collection</button>
-        <button onClick={() => window.location.href = '/home'}>Home</button>
+            type="text"
+            placeholder="New collection name"
+            value={newCollectionName}
+            onChange={(e) => setNewCollectionName(e.target.value)}
+          />
+          <button className='collections-btn create-btn' onClick={createCollection}>Create Collection</button>
+      </div>
       </div>
 
       <div className="collections-grid">
@@ -95,6 +118,7 @@ const Collections = () => {
         ))}
       </div>
     </div>
+    </>
   ) : (
     <p>Please log in to manage your collections.</p>
   );

@@ -82,7 +82,7 @@ const Collections = () => {
           onChange={(e) => setNewCollectionName(e.target.value)}
         />
         <button onClick={createCollection}>Create Collection</button>
-        <button onClick={() => window.location.href = '/dashboard'}>Dashboard</button>
+        <button onClick={() => window.location.href = '/home'}>Home</button>
       </div>
 
       <div className="collections-grid">

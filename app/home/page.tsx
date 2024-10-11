@@ -4,7 +4,7 @@ import Map from "@/components/Map";
 import React from "react";
 import Image from 'next/image';
 
-const Dashboard = () => {
+const Home = () => {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
@@ -16,28 +16,33 @@ const Dashboard = () => {
       {session ? (
         <>
         <div className="home-container">
-          <div className="home-content">
-            <Image
-              src="/images/ghost.png"
-              alt="Spooky background image"
-              width={27}
-              height={44}
-              className="ghost-image"
-            />
-            <p className="spookmap-text">SPOOKMAP</p>
-          </div>
+          <div className="nav-div">
+            <div className="home-content">
+              <Image
+                src="/images/ghost.png"
+                alt="Spooky background image"
+                width={44}
+                height={44}
+                className="ghost-image"
+              />
+              <p className="spookmap-text">SPOOKMAP</p>
+            </div>
 
-          <div className="btn-cont">
-            <button className="collections-btn" onClick={() => window.location.href = '/collections'}>
-              <span>Collections</span>
-              <Image src="/images/Save.png" alt="save ribbon" width={20} height={20} />
-            </button>
-            <a className="signOutBtn" onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</a>
+            <div className="btn-cont">
+              <button className="collections-btn" onClick={() => window.location.href = '/collections'}>
+                <span>Collections</span>
+                <Image src="/images/Save.png" alt="save ribbon" width={20} height={20} />
+              </button>
+              <a className="signOutBtn" onClick={() => signOut({ callbackUrl: "/" })}>Sign Out</a>
+            </div>
           </div>
+          
+          <div className="user-cont">
+            <img src={session.user?.image as string} alt="User Image" className="user-img" />
+            <p style={{ paddingLeft: '20px' }}>Hello, {session.user?.name}</p>
+          </div>
+          <Map /> 
         </div>
-        <img src={session.user?.image as string} alt="User Image" />
-        <p>Hello, {session.user?.name}</p>
-        <Map /> 
         </>
       ) : (
         <>
@@ -49,4 +54,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Home;

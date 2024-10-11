@@ -21,7 +21,7 @@ const SignIn = () => {
     if (res?.error) {
       setError(res.error);
     } else {
-      router.push("/dashboard");
+      router.push("/home");
     }
   };
 
@@ -50,7 +50,7 @@ const SignIn = () => {
       {error && <p className="error-message">{error}</p>}
       <p className="continueP"> Or continue with </p>
 
-      <button className="sign-in-google" onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
+      <button className="sign-in-google" onClick={() => signIn("google", { callbackUrl: "/home" })}>
       <Image src="/images/Google.svg" alt="Google" width={20} height={20} />
         <span>Sign in with Google</span>
       </button>

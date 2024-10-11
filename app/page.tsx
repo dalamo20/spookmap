@@ -11,9 +11,9 @@ export default function Welcome() {
   const router = useRouter();
 
   useEffect(() => {
-    // If user is authenticated, redirect to the dashboard
+    // If user is authenticated, redirect to the home
     if (status === "authenticated") {
-      router.push("/dashboard");
+      router.push("/home");
     }
   }, [status, router]);
 

@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
               if (!isValidPassword) {
                   throw new Error("Invalid password");
               }
-              return { email: user.email };
+              return { id: user.email, email: user.email, username: user.username };
           },
       }),
   ],
@@ -46,20 +46,23 @@ export const authOptions: NextAuthOptions = {
           const [existingUser]: any = await db.execute('SELECT * FROM users WHERE email = ?', [user.email]);
           if (existingUser.length === 0) {
             // Insert Google user in users table
-            await db.execute('INSERT INTO users (email) VALUES (?)', [user.email]);
+            await db.execute('INSERT INTO users (email, username) VALUES (?, ?)', [user.email, user.name]);
           }
         }
         return true;
       },
       async session({ session, token }) {
-          if (token) {
-              session.user.email = token.email;
-          }
-          return session;
+        session.user.email = token.email;
+        session.user.id = token.id;
+        session.user.username = token.username || token.name; 
+        return session;
       },
       async jwt({ token, user }) {
           if (user) {
-              token.email = user.email;
+            token.email = user.email;
+            token.id = user.id;
+            token.username = user.username;
+            token.name = user.name;
           }
           return token;
       },

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 const Register = () => {
     const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,7 @@ const Register = () => {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, username, password }),
             });
 
             if (!res.ok) {
@@ -38,6 +39,13 @@ const Register = () => {
         <div className="sign-in-container">
             <h1 className="signInH1">Create Account</h1>
             <form onSubmit={handleRegistration} className="custom-sign-in-form">
+                <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
                 <input
                     type="email"
                     placeholder="Email"

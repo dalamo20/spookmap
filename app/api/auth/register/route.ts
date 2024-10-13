@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export async function POST(request: Request) {
     try {
-        const { email, password } = await request.json();
+        const { email, username, password } = await request.json();
 
         // Check if email already exists in db
         const [existingUsers]: any = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert new user in db
-        await db.execute('INSERT INTO users (email, password) VALUES (?, ?)', [email, hashedPassword]);
+        await db.execute('INSERT INTO users (email, username, password) VALUES (?, ?, ?)', [email, username, hashedPassword]);
 
         return new Response(JSON.stringify({ success: "User created successfully" }), { status: 201 });
     } catch (error: any) {

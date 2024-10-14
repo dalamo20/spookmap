@@ -9,103 +9,6 @@ import Image from 'next/image';
 
 const libraries: Library[] = ["core", "maps", "places", "marker", "geometry"];
 
-const spookyMapStyle = [
-  {
-    "elementType": "geometry",
-    "stylers": [{ "color": "#212121" }]
-  },
-  {
-    "elementType": "labels.icon",
-    "stylers": [{ "visibility": "off" }]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#757575" }]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [{ "color": "#212121" }]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry",
-    "stylers": [{ "color": "#757575" }]
-  },
-  {
-    "featureType": "administrative.country",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#ff8c00" }]  
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "stylers": [{ "visibility": "off" }]
-  },
-  {
-    "featureType": "administrative.locality",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#ff8c00" }]  
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#757575" }]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry",
-    "stylers": [{ "color": "#181818" }]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#616161" }]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry.fill",
-    "stylers": [{ "color": "#333333" }]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#8b8b8b" }]
-  },
-  {
-    "featureType": "road.arterial",
-    "elementType": "geometry",
-    "stylers": [{ "color": "#373737" }]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [{ "color": "#ff8c00" }] 
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry.stroke",
-    "stylers": [{ "color": "#ff8c00" }] 
-  },
-  {
-    "featureType": "road.local",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#9e9e9e" }]
-  },
-  {
-    "featureType": "transit",
-    "stylers": [{ "visibility": "off" }]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [{ "color": "#000000" }]  
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.fill",
-    "stylers": [{ "color": "#3d3d3d" }]
-  }
-];
-
 const Map = () => {
     const { data: session } = useSession();
     const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -134,9 +37,8 @@ const Map = () => {
                     lng: -87.6298
                 },
                 zoom: 17, 
-                // mapId: "5646bb099176b654",
+                mapId: "6f36effab0d22861",
                 mapTypeControl: false, 
-                styles: spookyMapStyle
             };
 
             // Initialize map

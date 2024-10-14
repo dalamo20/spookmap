@@ -134,7 +134,7 @@ const Map = () => {
                     lng: -87.6298
                 },
                 zoom: 17, 
-                // mapId: "NEXTJS_MAPID",
+                // mapId: "5646bb099176b654",
                 mapTypeControl: false, 
                 styles: spookyMapStyle
             };
@@ -290,7 +290,7 @@ const Map = () => {
     
             if (response.ok) {
                 console.log('Place successfully saved to collection.');
-                setShowModal(false); // Close the modal
+                setShowModal(false); 
             } else {
                 console.error('Error saving place to collection:', await response.json());
             }

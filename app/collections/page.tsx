@@ -32,11 +32,16 @@ const Collections = () => {
 
   // Create a collection
   const createCollection = async () => {
+    if (!newCollectionName) {
+      console.error('Missing collection name');
+      return;
+    }
+
     try {
       const res = await fetch('/api/collections/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newCollectionName, userId: session?.user?.email })
+        body: JSON.stringify({ name: newCollectionName, userEmail: session?.user?.email })
       });
       
       const data = await res.json();

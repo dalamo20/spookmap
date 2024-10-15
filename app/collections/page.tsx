@@ -152,7 +152,6 @@ const Collections = () => {
           <div 
             key={collection.id} 
             className="collection-card"
-            onClick={() => viewCollection(collection.id)}
             style={{ cursor: 'pointer' }}>
           {editingCollection === collection.id ? (
             <>
@@ -166,9 +165,13 @@ const Collections = () => {
             </>
           ) : (
             <>
-              <h3 className="collection-name">{collection.name}</h3>
-              <button onClick={() => handleEditCollection(collection.id, collection.name)} className="edit-btn">Edit</button>
-              <button onClick={() => deleteCollection(collection.id)} className="delete-btn">Delete</button>
+                <Image className='city-img' src="/images/city.png" alt="city" width={100} height={100} onClick={() => viewCollection(collection.id)}/>
+                <button onClick={() => handleEditCollection(collection.id, collection.name)} className="edit-btn">Edit</button>
+                <div className='card-content'>
+                  <h3 className="collection-name">{collection.name}</h3>
+                  
+                  <button onClick={() => deleteCollection(collection.id)} className="delete-btn">Delete</button>
+                </div>
             </>
           )}
         </div>

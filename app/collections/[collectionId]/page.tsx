@@ -24,7 +24,7 @@ const CollectionPage = () => {
   }, [session, collectionId]);
 
   return session ? (
-    <div>
+    <div className="places-container">
       <h1>Places in Collection</h1>
       <button onClick={() => window.location.href = '/collections'}>Collections</button>
       {places.length > 0 ? (

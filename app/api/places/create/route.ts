@@ -2,8 +2,11 @@ import db from "@/app/api/config/route";
 
 export async function POST(request: Request) {
     try {
-        const { userEmail, placeName, placeDescription, latitude, longitude } = await request.json();
+        const { userEmail, placeName, placeDescription, latitude, longitude, city, state_abbrev } = await request.json();
         
+        if (!userEmail || !placeName || !latitude || !longitude || !city || !state_abbrev) {
+            return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
+        }
         // Needed to trim some descriptions in Marker card
         const trimmedDescription = placeDescription.substring(0, 1000);
 
@@ -29,8 +32,8 @@ export async function POST(request: Request) {
         } else {
             // Insert new location
             const [result]: any = await db.execute(
-                'INSERT INTO locations (name, description, latitude, longitude) VALUES (?, ?, ?, ?)',
-                [placeName, placeDescription, latitude, longitude]
+                'INSERT INTO locations (name, description, latitude, longitude, city, state_abbrev) VALUES (?, ?, ?, ?, ?, ?)',
+                [placeName, placeDescription, latitude, longitude, city, state_abbrev]
             );
             locationId = result.insertId; 
         }

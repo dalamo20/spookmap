@@ -105,6 +105,7 @@ const Map = () => {
 
         google.maps.event.addListener(infoWindow, 'domready', async () => {
             document.getElementById('savePlaceBtn').addEventListener('click', async () => {
+                const placeData = hauntedPlaces.find(p => p.location === title);
                 // Save place to the location table
                 const response = await fetch('/api/places/create', {
                     method: 'POST',
@@ -116,7 +117,9 @@ const Map = () => {
                         placeName: title,
                         placeDescription: description,
                         latitude: position.lat(),
-                        longitude: position.lng()
+                        longitude: position.lng(),
+                        city: placeData?.city, 
+                        state_abbrev: placeData?.state_abbrev
                     }),
                 });
 

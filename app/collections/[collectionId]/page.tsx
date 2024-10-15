@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 const CollectionPage = () => {
   const { data: session } = useSession();
   const { collectionId } = useParams(); 
-  const [places, setPlaces] = useState<{id: number, name: string, description: string, latitude: number, longitude: number}[]>([]);
+  const [places, setPlaces] = useState<{id: number, name: string, description: string, city: string, state_abbrev: string}[]>([]);
 
   useEffect(() => {
     if (session && collectionId) {
@@ -33,7 +33,7 @@ const CollectionPage = () => {
             <li key={place.id}>
               <h3>{place.name}</h3>
               <p>{place.description}</p>
-              <p>Latitude: {place.latitude}, Longitude: {place.longitude}</p>
+              <p>{place.city}, {place.state_abbrev}</p>
             </li>
           ))}
         </ul>

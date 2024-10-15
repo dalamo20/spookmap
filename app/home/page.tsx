@@ -38,7 +38,11 @@ const Home = () => {
           </div>
           
           <div className="user-cont">
-            <img src={session.user?.image || '/images/profile-placeholder.svg'} alt="User Image" className="user-img" />
+          <img
+              src={session.user?.image || '/images/profile-placeholder.svg'}
+              alt="User Image"
+              className="user-img"
+            />
             <p style={{ paddingLeft: '20px' }}>Hello, {session.user?.username ? session.user.username : session.user.email}
 </p>
           </div>

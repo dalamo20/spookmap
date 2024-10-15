@@ -107,6 +107,7 @@ const Collections = () => {
 
   // Navigate inside selected collection 
   const viewCollection = (collectionId: number) => {
+    console.log("Navigating to collection:", collectionId);
     router.push(`/collections/${collectionId}`);
   };
 
@@ -148,7 +149,11 @@ const Collections = () => {
 
       <div className="collections-grid">
         {collections.map(collection => (
-          <div key={collection.id} className="collection-card">
+          <div 
+            key={collection.id} 
+            className="collection-card"
+            onClick={() => viewCollection(collection.id)}
+            style={{ cursor: 'pointer' }}>
           {editingCollection === collection.id ? (
             <>
               <input
@@ -161,7 +166,7 @@ const Collections = () => {
             </>
           ) : (
             <>
-              <h3>{collection.name}</h3>
+              <h3 className="collection-name">{collection.name}</h3>
               <button onClick={() => handleEditCollection(collection.id, collection.name)} className="edit-btn">Edit</button>
               <button onClick={() => deleteCollection(collection.id)} className="delete-btn">Delete</button>
             </>

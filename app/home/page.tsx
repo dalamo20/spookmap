@@ -19,13 +19,12 @@ const Home = () => {
           <div className="nav-div">
             <div className="home-content">
               <Image
-                src="/images/ghost.png"
+                src="/images/SpookMap_logo.svg"
                 alt="Spooky background image"
-                width={44}
-                height={44}
+                width={300}
+                height={200}
                 className="ghost-image"
               />
-              <p className="spookmap-text">SPOOKMAP</p>
             </div>
 
             <div className="btn-cont">

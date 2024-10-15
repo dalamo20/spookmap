@@ -251,7 +251,6 @@ input:focus {
   color: white;
   display: flex;
   flex-direction: column;
-  padding-top: 41px;
 }
 
 .nav-div {
@@ -301,7 +300,7 @@ input:focus {
   padding-left: 48px;
   font-size: 24px;
   white-space: nowrap;
-  padding-top: 140px;
+  padding-top: 108px;
 }
 
 .user-img {
@@ -320,7 +319,6 @@ input:focus {
 .srch-container {
   position: relative;
   margin: 44px;
-  
 }
 
 .srch-container input {
@@ -336,6 +334,7 @@ input:focus {
   background-size: 20px 20px; 
   background-color: #888888 ;
   color: white;
+  opacity: 80%;
 }
 
 .pac-target-input::placeholder {
@@ -351,7 +350,6 @@ input:focus {
   color: white;
   display: flex;
   flex-direction: column;
-  padding-top: 41px;
 }
 
 .home-btn {
@@ -446,6 +444,9 @@ input:focus {
   width: 100%;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+
 }
 
 .card-content {
@@ -520,9 +521,35 @@ input:focus {
 }
 /* End of Modal */
 
+/* Places Page */
 .places-container {
+  background-color: black;
   color: white;
+  display: flex;
+  flex-direction: column;
 }
+
+.page-heading {
+  margin: 48px;
+  font-size: 36px;
+}
+
+.haunts {
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+  color: black;
+  margin: 0 48px 16px;
+  border-radius: 15px;
+  padding: 15px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+
+/* End of Places Page */
 
 @media (prefers-color-scheme: dark) {
   html {

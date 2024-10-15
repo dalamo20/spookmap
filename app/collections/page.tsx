@@ -116,15 +116,13 @@ const Collections = () => {
     <div className='collections-container'>
       <div className="nav-div">
             <div className="home-content">
-              <Image
-                src="/images/ghost.png"
+            <Image
+                src="/images/SpookMap_logo.svg"
                 alt="Spooky background image"
-                width={44}
-                height={44}
+                width={300}
+                height={200}
                 className="ghost-image"
-                onClick={() => window.location.href = '/home'}
               />
-              <p className="spookmap-text" onClick={() => window.location.href = '/home'} >SPOOKMAP</p>
             </div>
 
             <div className="btn-cont">
@@ -165,7 +163,7 @@ const Collections = () => {
             </>
           ) : (
             <>
-                <Image className='city-img' src="/images/city.png" alt="city" width={100} height={100} onClick={() => viewCollection(collection.id)}/>
+                <Image className='city-img' src="/images/city.jpg" alt="city" width={100} height={100} onClick={() => viewCollection(collection.id)}/>
                 <button onClick={() => handleEditCollection(collection.id, collection.name)} className="edit-btn">Edit</button>
                 <div className='card-content'>
                   <h3 className="collection-name">{collection.name}</h3>

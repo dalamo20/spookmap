@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 const Register = () => {
     const [email, setEmail] = useState("");
@@ -68,6 +69,7 @@ const Register = () => {
                     required
                 />
                 <button type="submit" className="sign-in-form">Create Account</button>
+                <button onClick={() => router.push("/")} className="sign-in-form">Cancel</button>
             </form>
 
             {error && <p style={{ color: "red" }}>{error}</p>}

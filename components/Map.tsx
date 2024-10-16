@@ -223,7 +223,7 @@ const Map = () => {
                         value={selectedCollectionId}
                         onChange={(e) => setSelectedCollectionId(e.target.value)}
                     >
-                        <option value="">Create New Collection</option>
+                        <option value="">Add to Existing Collection</option>
                         {collections && collections.length > 0 ? (
                             collections.map(collection => (
                             <option key={collection.id} value={collection.id}>{collection.name}</option>

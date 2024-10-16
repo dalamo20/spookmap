@@ -350,6 +350,7 @@ input:focus {
   color: white;
   display: flex;
   flex-direction: column;
+  height: 100vh;
 }
 
 .home-btn {
@@ -417,7 +418,8 @@ input:focus {
 }
 
 .collection-card:hover {
-  transform: scale(1.05);
+  transform: scale(1.05); /* Slightly enlarge the card on hover */
+  box-shadow: 0 0 25px 10px rgba(255, 255, 255, 0.8);
 }
 
 .collection-card h3 {
@@ -461,7 +463,8 @@ input:focus {
 .edit-btn {
   position: absolute;
   right: 0;
-  margin: 5px;
+  margin: 10px;
+  padding: 5px;
 }
 /* End of Collections page */
 
@@ -505,15 +508,16 @@ input:focus {
 .modal-content button {
   padding: 10px 20px;
   margin-right: 10px;
-  background-color: #4CAF50;
-  color: black;
-  border: none;
-  border-radius: 5px;
+  background-color: black;
+  color: white;
+  border-radius: 24px;
   cursor: pointer;
 }
 
 .modal-content button:last-child {
-  background-color: #f44336;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
 }
 
 .gm-style .gm-style-iw-c{
@@ -542,6 +546,12 @@ input:focus {
   margin: 0 48px 16px;
   border-radius: 15px;
   padding: 15px;
+}
+
+.remove-btn {
+  background-color: red;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 ul {

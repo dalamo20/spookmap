@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from 'next/image';
 
 const CollectionPage = () => {
@@ -10,6 +10,12 @@ const CollectionPage = () => {
   const [places, setPlaces] = useState<{id: number, name: string, description: string, city: string, state_abbrev: string}[]>([]);
   const [collectionName, setCollectionName] = useState<string>("");
 
+  const capitalizeFirstLetter = (str: any) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+  
+
   useEffect(() => {
     if (session && collectionId) {
       console.log("Fetching places for collectionId:", collectionId);
@@ -17,7 +23,12 @@ const CollectionPage = () => {
         .then((res) => res.json())
         .then((data) => {
           console.log("Fetched places:", data);
-          setPlaces(data.places);
+          // Capitalizes first letter in description. Some desc need it
+          const updatedPlaces = data.places.map((place: any) => ({
+            ...place,
+            description: capitalizeFirstLetter(place.description)
+          }));
+          setPlaces(updatedPlaces);
           setCollectionName(data.collection.name);
         })
         .catch((error) => console.error("Error fetching places:", error));
@@ -25,6 +36,30 @@ const CollectionPage = () => {
       console.log("No session or collectionId found:", { session, collectionId });
     }
   }, [session, collectionId]);
+
+  // Remove a place from collection
+  const removePlaceFromCollection = async (placeId: number) => {
+    try {
+      const res = await fetch('/api/collections/removePlace', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ collectionId, placeId }),
+      });
+
+      if (res.ok) {
+        // Removes location from state
+        setPlaces((prevPlaces) => prevPlaces.filter((place) => place.id !== placeId));
+        console.log('Place removed successfully.');
+      } else {
+        const data = await res.json();
+        console.error('Error removing place:', data.error);
+      }
+    } catch (error) {
+      console.error('Error removing place:', error);
+    }
+  };
 
   return session ? (
     <div className="places-container">
@@ -57,12 +92,15 @@ const CollectionPage = () => {
       {places.length > 0 ? (
         <ul>
           {places.map((place) => (
-            <div className="haunts">
+            <div className="haunts" key={place.id}>
               <Image className="location-img" src="/images/Location.png" alt="location icon" width={20} height={20} />
               <li key={place.id}>
                 <h3>{place.name}</h3>
                 <p>{place.description}</p>
-                <p>{place.city}, {place.state_abbrev}</p>
+                <p><i>
+                  {place.city && place.state_abbrev ? `${place.city}, ${place.state_abbrev}` : "City, State"}
+                </i></p>
+                <Image onClick={() => removePlaceFromCollection(place.id)} className="remove-btn" src="/images/delete.png" alt="trash icon" width={20} height={20} />
               </li>
             </div>
           ))}

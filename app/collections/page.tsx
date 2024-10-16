@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 const Collections = () => {
   const { data: session } = useSession();
-  const [collections, setCollections] = useState<{id: number, name: string}[]>([]);
+  const [collections, setCollections] = useState<{id: number, name: string}[]>([]); // Provide default as empty array
   const [newCollectionName, setNewCollectionName] = useState('');
   const [editingCollection, setEditingCollection] = useState<number | null>(null);
   const [updatedCollectionName, setUpdatedCollectionName] = useState('');
@@ -26,9 +26,12 @@ const Collections = () => {
       const res = await fetch(`/api/collections?userId=${session?.user?.email}`);
       const data = await res.json();
       console.log('Fetched Collections:', data); 
-      setCollections(data.collections);
+      
+      // Check if data.collections exists, if not, set an empty array
+      setCollections(data.collections || []); 
     } catch (error) {
       console.error('Error fetching collections:', error);
+      setCollections([]); // Handle the case when fetch fails
     }
   };
 
@@ -146,34 +149,37 @@ const Collections = () => {
       </div>
 
       <div className="collections-grid">
-        {collections.map(collection => (
-          <div 
-            key={collection.id} 
-            className="collection-card"
-            style={{ cursor: 'pointer' }}>
-          {editingCollection === collection.id ? (
-            <>
-              <input
-                type="text"
-                value={updatedCollectionName}
-                onChange={(e) => setUpdatedCollectionName(e.target.value)}
-                placeholder="New collection name"
-              />
-              <button onClick={updateCollection} className="update-btn">Save</button>
-            </>
-          ) : (
-            <>
-                <Image className='city-img' src="/images/city.jpg" alt="city" width={100} height={100} onClick={() => viewCollection(collection.id)}/>
-                <button onClick={() => handleEditCollection(collection.id, collection.name)} className="edit-btn">Edit</button>
-                <div className='card-content'>
-                  <h3 className="collection-name">{collection.name}</h3>
-                  
-                  <button onClick={() => deleteCollection(collection.id)} className="delete-btn">Delete</button>
-                </div>
-            </>
-          )}
-        </div>
-        ))}
+        {collections.length > 0 ? (
+          collections.map(collection => (
+            <div 
+              key={collection.id} 
+              className="collection-card"
+              style={{ cursor: 'pointer' }}>
+            {editingCollection === collection.id ? (
+              <>
+                <input
+                  type="text"
+                  value={updatedCollectionName}
+                  onChange={(e) => setUpdatedCollectionName(e.target.value)}
+                  placeholder="New collection name"
+                />
+                <button onClick={updateCollection} className="update-btn">Save</button>
+              </>
+            ) : (
+              <>
+                  <Image className='city-img' src="/images/city.jpg" alt="city" width={100} height={100} onClick={() => viewCollection(collection.id)}/>
+                  <button onClick={() => handleEditCollection(collection.id, collection.name)} className="edit-btn">Edit</button>
+                  <div className='card-content'>
+                    <h3 className="collection-name">{collection.name}</h3>
+                    <Image onClick={() => deleteCollection(collection.id)} className="delete-btn" src="/images/delete.png" alt="trash icon" width={30} height={30} />
+                  </div>
+              </>
+            )}
+          </div>
+          ))
+        ) : (
+          <p>No collections found.</p>
+        )}
       </div>
     </div>
     </>

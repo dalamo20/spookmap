@@ -56,7 +56,7 @@ const SignIn = () => {
       </button>
 
       <p className="createLinkP">
-        Don't have an account yet? <a href="/auth/register" className="createLink">Create an account</a>
+        Do not have an account yet? <a href="/auth/register" className="createLink">Create an account</a>
       </p>
     </div>
   );

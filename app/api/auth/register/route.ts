@@ -1,4 +1,4 @@
-import db from "@/app/api/config/route";
+import db from "@/lib/db";
 import bcrypt from "bcrypt";
 
 export async function POST(request: Request) {

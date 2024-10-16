@@ -104,35 +104,39 @@ const Map = () => {
         });
 
         google.maps.event.addListener(infoWindow, 'domready', async () => {
-            document.getElementById('savePlaceBtn').addEventListener('click', async () => {
-                const placeData = hauntedPlaces.find(p => p.location === title);
-                // Save place to the location table
-                const response = await fetch('/api/places/create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userEmail: session?.user?.email, 
-                        placeName: title,
-                        placeDescription: description,
-                        latitude: position.lat(),
-                        longitude: position.lng(),
-                        city: placeData?.city, 
-                        state_abbrev: placeData?.state_abbrev
-                    }),
+            const savePlaceBtn = document.getElementById('savePlaceBtn');
+            if (savePlaceBtn) {  
+                savePlaceBtn.addEventListener('click', async () => {
+                    const placeData = hauntedPlaces.find(p => p.location === title);
+                    // Save place to the location table
+                    const response = await fetch('/api/places/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userEmail: session?.user?.email,
+                            placeName: title,
+                            placeDescription: description,
+                            latitude: position.lat(),
+                            longitude: position.lng(),
+                            city: placeData?.city,
+                            state_abbrev: placeData?.state_abbrev,
+                        }),
+                    });
+        
+                    const savedPlace = await response.json();
+                    if (savedPlace && savedPlace.id) {
+                        setSelectedPlace(savedPlace);
+                        setShowModal(true);
+                        fetchCollections();
+                    } else {
+                        console.error('Error saving place:', savedPlace);
+                    }
                 });
-
-                const savedPlace = await response.json();
-                if (savedPlace && savedPlace.id) {
-                    setSelectedPlace(savedPlace);  
-                    setShowModal(true);  
-                    fetchCollections();  
-                } else {
-                    console.error('Error saving place:', savedPlace);
-                }
-            });
+            }
         });
+        
 
         marker.addListener("click", () => {
             infoWindow.open(map, marker);

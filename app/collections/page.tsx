@@ -4,6 +4,9 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+// Forcing dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const Collections = () => {
   const { data: session } = useSession();
   const [collections, setCollections] = useState<{id: number, name: string}[]>([]); // Provide default as empty array

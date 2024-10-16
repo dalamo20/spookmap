@@ -1,4 +1,4 @@
-import db from "@/app/api/config/route";
+import db from "@/lib/db";
 
 // This API route is to fetch collections by userId
 export async function GET(request: Request) {

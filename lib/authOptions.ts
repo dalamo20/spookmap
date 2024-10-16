@@ -1,7 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials"
-import db from '@/app/api/config/route';
+import db from '@/lib/db';
 import bcrypt from 'bcrypt';
 
 export const authOptions: NextAuthOptions = {
@@ -41,8 +41,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-        if (account.provider === 'google') {
-          // Check if the user is in users table
+        if (account && account.provider === 'google') {
           const [existingUser]: any = await db.execute('SELECT * FROM users WHERE email = ?', [user.email]);
           if (existingUser.length === 0) {
             // Insert Google user in users table
@@ -52,9 +51,9 @@ export const authOptions: NextAuthOptions = {
         return true;
       },
       async session({ session, token }) {
-        session.user.email = token.email;
-        session.user.id = token.id;
-        session.user.username = token.username || token.name; 
+        session.user.email = token.email || ""; 
+        session.user.id = token.id ? String(token.id) : '';
+        session.user.username = token.username ? String(token.username) : token.name ? String(token.name) : '';
         return session;
       },
       async jwt({ token, user }) {

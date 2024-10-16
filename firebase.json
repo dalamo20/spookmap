@@ -9,8 +9,12 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "function": "nextApp"
       }
     ]
+  },
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs16"
   }
 }

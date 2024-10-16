@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/spookmap",
+    "public": ".next",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -14,7 +14,8 @@
     ]
   },
   "functions": {
-    "source": ".",
-    "runtime": "nodejs16"
+    "source": "functions",
+    "runtime": "nodejs16",
+    "predeploy": ["npm install", "npm run build"]
   }
 }

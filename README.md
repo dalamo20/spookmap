@@ -62,6 +62,12 @@ NextAuth:
 <img width="629" alt="db2" src="https://github.com/user-attachments/assets/70084d0c-370c-46a9-9e0a-0f7feac013f0">
 
 
+## The Web App
+![Welcome](https://github.com/user-attachments/assets/32a69b62-d7f9-4dbb-9add-41241c9af705)
+![Sign in](https://github.com/user-attachments/assets/75f681a1-ec53-4ef7-b2d9-903e19003c09)
+![Home](https://github.com/user-attachments/assets/109379b9-6856-4cae-a116-308550b13f29)
+![Create an account](https://github.com/user-attachments/assets/f4f6d040-4b9b-42b4-9ef4-a8dac6661f49)
+
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

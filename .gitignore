@@ -38,3 +38,8 @@ next-env.d.ts
 certificates
 firebaseConfig.js
 .firebaserc
+
+# Exclude Firebase, Next.js cache, and node_modules
+.firebase/
+.next/
+node_modules/

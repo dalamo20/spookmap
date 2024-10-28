@@ -41,5 +41,5 @@ firebaseConfig.js
 
 # Exclude Firebase, Next.js cache, and node_modules
 .firebase/
-.next/
 node_modules/
+.next/

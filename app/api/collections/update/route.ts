@@ -1,4 +1,5 @@
-import db from "@/lib/db";
+import { db } from "@/app/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
 
 export async function POST(request: Request) {
   try {
@@ -8,16 +9,11 @@ export async function POST(request: Request) {
       return new Response(JSON.stringify({ error: 'Missing collectionId or newName' }), { status: 400 });
     }
 
-    const [result]: any = await db.execute(
-      'UPDATE collections SET name = ? WHERE id = ?',
-      [newName, collectionId]
-    );
+    // Update collection name in Firestore
+    const collectionDocRef = doc(db, "userCollections", collectionId);
+    await updateDoc(collectionDocRef, { name: newName });
 
-    if (result.affectedRows === 1) {
-      return new Response(JSON.stringify({ success: true }), { status: 200 });
-    } else {
-      throw new Error('Failed to update collection');
-    }
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }

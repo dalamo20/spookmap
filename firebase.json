@@ -1,16 +1,21 @@
 {
   "hosting": {
-    "public": "out",  
+    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "function": "nextApp"
-      }
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs16",
+    "predeploy": [
+      "npm install",
+      "npm run build"
     ]
   }
 }

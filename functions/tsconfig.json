@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["dom", "es2017"], 
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "lib",
+    "skipLibCheck": true
+  },
+  "include": ["./*.ts", "./**/*.ts"],
+  "exclude": ["node_modules", "lib"]
+}

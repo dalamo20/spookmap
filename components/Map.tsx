@@ -6,6 +6,36 @@ import { useSession } from 'next-auth/react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import hauntedPlaces from '../public/haunted_places.json';
 import Image from 'next/image';
+import { db } from '@/app/firebaseConfig';
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+
+interface Place {
+    name: string;
+    description: string;
+    latitude: number;
+    longitude: number;
+    city: string;
+    state_abbrev: string;
+  }
+  
+
+  const savePlaceToFirestore = async (place: Place) => {
+    try {
+      const docRef = await addDoc(collection(db, "locations"), {
+        name: place.name,
+        description: place.description,
+        latitude: place.latitude,
+        longitude: place.longitude,
+        city: place.city,
+        stateAbbrev: place.state_abbrev,
+        createdAt: Timestamp.now(),
+      });
+      //console.log("Location added with ID:", docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error("Error saving place:", error);
+    }
+  };  
 
 const libraries: Library[] = ["core", "maps", "places", "marker", "geometry"];
 
@@ -156,7 +186,7 @@ const Map = () => {
 
         if (!collectionId && newCollectionName) {
             try {
-                console.log('Creating a new collection with name:', newCollectionName, 'and userEmail:', session?.user?.email);
+                // console.log('Creating a new collection with name:', newCollectionName, 'and userEmail:', session?.user?.email);
                 
                 const newCollectionRes = await fetch('/api/collections/create', {
                     method: 'POST',
@@ -165,7 +195,7 @@ const Map = () => {
                 });
                 
                 const newCollectionData = await newCollectionRes.json();
-                console.log('New Collection Created:', newCollectionData);
+                // console.log('New Collection Created:', newCollectionData);
                 
                 if (newCollectionData.success) {
                     collectionId = newCollectionData.collectionId;

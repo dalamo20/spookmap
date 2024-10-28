@@ -2,7 +2,6 @@ import { hostname } from "os";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: "export",
   images: {
     remotePatterns: [
       {
@@ -15,6 +14,7 @@ const nextConfig = {
       },
     ],
   },
+  output: "standalone",
 };
 
 export default nextConfig;

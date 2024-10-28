@@ -3,40 +3,46 @@ import { useState, useEffect } from 'react';
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-
-// Forcing dynamic rendering
-export const dynamic = 'force-dynamic';
+import { db } from "@/app/firebaseConfig";
+import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc, where, query } from "firebase/firestore";
 
 const Collections = () => {
   const { data: session } = useSession();
-  const [collections, setCollections] = useState<{id: number, name: string}[]>([]); // Provide default as empty array
+  const [collections, setCollections] = useState<{id: string, name: string}[]>([]); 
   const [newCollectionName, setNewCollectionName] = useState('');
-  const [editingCollection, setEditingCollection] = useState<number | null>(null);
+  const [editingCollection, setEditingCollection] = useState<string | null>(null);
   const [updatedCollectionName, setUpdatedCollectionName] = useState('');
   const router = useRouter();
 
   // Fetch users collections on render
   useEffect(() => {
     if (session) {
-      console.log('Session Data:', session);
-      console.log('User Email:', session?.user?.email); 
+      // console.log('Session Data:', session);
+      // console.log('User Email:', session?.user?.email); 
       fetchCollections();
     }
   }, [session]);
 
-  const fetchCollections = async () => {
-    try {
-      const res = await fetch(`/api/collections?userId=${session?.user?.email}`);
-      const data = await res.json();
-      console.log('Fetched Collections:', data); 
-      
-      // Check if data.collections exists, if not, set an empty array
-      setCollections(data.collections || []); 
-    } catch (error) {
-      console.error('Error fetching collections:', error);
-      setCollections([]); // Handle the case when fetch fails
-    }
-  };
+const fetchCollections = async () => {
+  try {
+    const collectionsRef = collection(db, "userCollections");
+    // Collections belonging to users email
+    const userCollectionsQuery = query(
+      collectionsRef,
+      where("userEmail", "==", session?.user.email)
+    );
+
+    const querySnapshot = await getDocs(userCollectionsQuery);
+    const fetchedCollections = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setCollections(fetchedCollections as any[]);
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    setCollections([]);
+  }
+};
 
   // Create a collection
   const createCollection = async () => {
@@ -46,41 +52,63 @@ const Collections = () => {
     }
 
     try {
-      const res = await fetch('/api/collections/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newCollectionName, userEmail: session?.user?.email })
+      const docRef = await addDoc(collection(db, "userCollections"), {
+        name: newCollectionName,
+        userEmail: session?.user?.email,
+        createdAt: new Date(),
       });
-      
-      const data = await res.json();
-      console.log('Created Collection:', data);
-      if (data.success) {
-        setCollections([...collections, { id: data.collectionId, name: newCollectionName }]);
+        setCollections([...collections, { id: docRef.id, name: newCollectionName }]);
         setNewCollectionName('');
-      }
     } catch (error) {
       console.error('Error creating collection:', error);
     }
   };
 
   // Delete a collection
-  const deleteCollection = async (collectionId: number) => {
-    try {
-      await fetch('/api/collections/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ collectionId })
-      });
+const deleteCollection = async (collectionId: string) => {
+  try {
+    const placesCollectionRef = collection(db, "userCollections", collectionId, "places");
+    const placesSnapshot = await getDocs(placesCollectionRef);
 
-      console.log('Deleted Collection ID:', collectionId);
-      setCollections(collections.filter(col => col.id !== collectionId));
+    // Collect all placeIds that need to be checked for deletion
+    const placeIds = placesSnapshot.docs.map((doc) => doc.data().placeId);
+    // Delete all nested documents (places) in collection
+    const deletePlacesPromises = placesSnapshot.docs.map((doc) => deleteDoc(doc.ref));
+    await Promise.all(deletePlacesPromises);
+    // Delete collection document
+    await deleteDoc(doc(db, "userCollections", collectionId));
 
-    } catch (error) {
-      console.error('Error deleting collection:', error);
+    // Check if each placeId is still referenced by any other collections and delete if not
+    await Promise.all(
+      placeIds.map(async (placeId) => {
+        const isLocationReferenced = await checkIfLocationReferenced(placeId);
+        if (!isLocationReferenced) {
+          await deleteDoc(doc(db, "locations", placeId));
+          // console.log(`Location ${placeId} deleted from locations collection.`);
+        }
+      })
+    );
+    // Update the state to remove the deleted collection
+    setCollections(collections.filter((col) => col.id !== collectionId));
+  } catch (error) {
+    console.error('Error deleting collection and its places:', error);
+  }
+};
+
+// Helper function/ checks if location referenced in any collection
+const checkIfLocationReferenced = async (placeId: string) => {
+  const collectionsSnapshot = await getDocs(collection(db, "userCollections"));
+  for (const collectionDoc of collectionsSnapshot.docs) {
+    const placesCollectionRef = collection(collectionDoc.ref, "places");
+    const placesSnapshot = await getDocs(placesCollectionRef);
+    if (placesSnapshot.docs.some((placeDoc) => placeDoc.data().placeId === placeId)) {
+      return true; // Found reference to location
     }
-  };
+  }
+  return false; // No references found
+};
 
-  const handleEditCollection = (collectionId: number, currentName: string) => {
+  const handleEditCollection = (collectionId: string, currentName: string) => {
     setEditingCollection(collectionId);
     setUpdatedCollectionName(currentName);
   };
@@ -90,30 +118,20 @@ const Collections = () => {
     if (!editingCollection || !updatedCollectionName.trim()) return;
     
     try {
-      const res = await fetch('/api/collections/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          collectionId: editingCollection,
-          newName: updatedCollectionName
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
+        const collectionDocRef = doc(db, "userCollections", editingCollection);
+        await updateDoc(collectionDocRef, { name: updatedCollectionName });
         setCollections(collections.map(col =>
           col.id === editingCollection ? { ...col, name: updatedCollectionName } : col
         ));
         setEditingCollection(null);
         setUpdatedCollectionName('');
-      }
     } catch (error) {
       console.error('Error updating collection:', error);
     }
   };
 
   // Navigate inside selected collection 
-  const viewCollection = (collectionId: number) => {
-    console.log("Navigating to collection:", collectionId);
+  const viewCollection = (collectionId: string) => {
     router.push(`/collections/${collectionId}`);
   };
 

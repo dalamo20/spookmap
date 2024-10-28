@@ -1,27 +1,13 @@
 "use client";
 
 import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from "next/navigation";
 
-const ErrorPageContent = () => {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-
-  return (
-    <div>
-      <h1>Authentication Error</h1>
-      {error ? (
-        <p style={{ color: "red" }}>
-          {error}
-        </p>
-      ) : (
-        <p>Something went wrong during the authentication process. Please try again.</p>
-      )}
-
-      <a href="/auth/signin">Back to Sign In</a>
-    </div>
-  );
-};
+// Dynamically importing ErrorPageContent without SSR
+const ErrorPageContent = dynamic(() => import('./ErrorPageContentComponent'), {
+  ssr: false,
+});
 
 const ErrorPage = () => (
   <Suspense fallback={<p>Loading...</p>}>
@@ -29,6 +15,6 @@ const ErrorPage = () => (
   </Suspense>
 );
 
-export const dynamic = 'force-dynamic';  
+export const dynamicPage = 'force-dynamic';  
 
 export default ErrorPage;

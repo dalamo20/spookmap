@@ -1,69 +1,92 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from "next-auth/providers/credentials"
-import db from '@/lib/db';
+import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcrypt';
+import { db } from '@/app/firebaseConfig';
+import { collection, doc, getDoc, setDoc, query, where, getDocs } from "firebase/firestore";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-      GoogleProvider({
-          clientId: process.env.GOOGLE_CLIENT_ID as string,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      }),
-      CredentialsProvider({
-          name: "Credentials",
-          credentials: {
-              email: { label: "Email", type: "email" },
-              password: { label: "Password", type: "password" },
-          },
-          async authorize(credentials) {
-              const { email, password } = credentials as { email: string, password: string };
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const { email, password } = credentials as { email: string, password: string };
+        
+        // Get user from Firestore
+        const userDocRef = doc(db, "users", email);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+          throw new Error("No user found with this email");
+        }
 
-              // Select user from db
-              const [users]: any = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
-              if (users.length === 0) {
-                  throw new Error("No user found with this email");
-              }
+        const userData = userDoc.data();
+        const isValidPassword = await bcrypt.compare(password, userData.password);
+        if (!isValidPassword) {
+          throw new Error("Invalid password");
+        }
 
-              const user = users[0];
-              const isValidPassword = await bcrypt.compare(password, user.password);
-              if (!isValidPassword) {
-                  throw new Error("Invalid password");
-              }
-              return { id: user.email, email: user.email, username: user.username };
-          },
-      }),
+        return { id: userDoc.id, email: userData.email, username: userData.username };
+      },
+    }),
   ],
   pages: {
-      signIn: "/auth/signin",  
-      error: "/auth/error",  
-      newUser: "/auth/register" 
+    signIn: "/auth/signin",  
+    error: "/auth/error",  
+    newUser: "/auth/register" 
   },
   callbacks: {
     async signIn({ user, account }) {
-        if (account && account.provider === 'google') {
-          const [existingUser]: any = await db.execute('SELECT * FROM users WHERE email = ?', [user.email]);
-          if (existingUser.length === 0) {
-            // Insert Google user in users table
-            await db.execute('INSERT INTO users (email, username) VALUES (?, ?)', [user.email, user.name]);
-          }
+      if (account && account.provider === 'google') {
+        // console.log("Received user object:", user);
+    
+        try {
+          const newUserRef = doc(db, "users", user.email);
+          // console.log("Creating user in Firestore with email:", user.email);
+          
+          await setDoc(newUserRef, {
+            email: user.email,
+            username: user.name || "Unknown",
+            createdAt: new Date(),
+          });
+    
+          console.log("User created successfully.");
+        } catch (err: any) {
+          console.error("Error creating user document in Firestore:", err.message);
+          return false;
         }
-        return true;
-      },
-      async session({ session, token }) {
-        session.user.email = token.email || ""; 
-        session.user.id = token.id ? String(token.id) : '';
-        session.user.username = token.username ? String(token.username) : token.name ? String(token.name) : '';
-        return session;
-      },
-      async jwt({ token, user }) {
-          if (user) {
-            token.email = user.email;
-            token.id = user.id;
-            token.username = user.username;
-            token.name = user.name;
-          }
-          return token;
-      },
-  },
-};
+      }
+      return true;
+    },
+    async jwt({ token, account }) {
+      if (account) {
+        token.email_verified = account.email_verified; 
+        // console.log("JWT token claims after Google Sign-In: ", token);
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        // Fetch users doc using email
+        const userDocRef = doc(db, "users", session.user.email);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          // Username in session obj
+          session.user.username = userData.username || null;
+        } else {
+          console.warn(`User document not found for email: ${session.user.email}`);
+        }
+        session.user.email_verified = token.email_verified;
+      }
+      return session;
+    }
+  }   
+}  

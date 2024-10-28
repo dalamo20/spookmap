@@ -3,62 +3,103 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Image from 'next/image';
+import { db } from "@/app/firebaseConfig";
+import { doc, getDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
 
 const CollectionPage = () => {
   const { data: session } = useSession();
   const { collectionId } = useParams(); 
-  const [places, setPlaces] = useState<{id: number, name: string, description: string, city: string, state_abbrev: string}[]>([]);
+  const [places, setPlaces] = useState<{ id: string, name: string, description: string, city: string, stateAbbrev: string }[]>([]);
   const [collectionName, setCollectionName] = useState<string>("");
 
-  const capitalizeFirstLetter = (str: any) => {
+  const capitalizeFirstLetter = (str: string) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
-  
 
   useEffect(() => {
     if (session && collectionId) {
-      console.log("Fetching places for collectionId:", collectionId);
-      fetch(`/api/collections/${collectionId}/places`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Fetched places:", data);
-          // Capitalizes first letter in description. Some desc need it
-          const updatedPlaces = data.places.map((place: any) => ({
-            ...place,
-            description: capitalizeFirstLetter(place.description)
-          }));
-          setPlaces(updatedPlaces);
-          setCollectionName(data.collection.name);
-        })
-        .catch((error) => console.error("Error fetching places:", error));
-    } else {
-      console.log("No session or collectionId found:", { session, collectionId });
+      fetchPlaces();
     }
   }, [session, collectionId]);
 
-  // Remove a place from collection
-  const removePlaceFromCollection = async (placeId: number) => {
+  const fetchPlaces = async () => {
     try {
-      const res = await fetch('/api/collections/removePlace', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ collectionId, placeId }),
-      });
-
-      if (res.ok) {
-        // Removes location from state
-        setPlaces((prevPlaces) => prevPlaces.filter((place) => place.id !== placeId));
-        console.log('Place removed successfully.');
+      const collectionDocRef = doc(db, "userCollections", collectionId);
+      const collectionDoc = await getDoc(collectionDocRef);
+  
+      if (collectionDoc.exists() && collectionDoc.data().userEmail === session?.user.email) {
+        setCollectionName(collectionDoc.data()?.name);
+        // Fetch nested places inside the collection
+        const placesCollectionRef = collection(collectionDocRef, "places");
+        const placesSnapshot = await getDocs(placesCollectionRef);
+  
+        // Fetch details for each place using its placeId
+        const fetchedPlaces = await Promise.all(
+          placesSnapshot.docs.map(async (placeDoc) => {
+            const placeId = placeDoc.data().placeId;
+            const locationDocRef = doc(db, "locations", placeId);
+            const locationDoc = await getDoc(locationDocRef);
+  
+            if (locationDoc.exists()) {
+              const placeData = locationDoc.data();
+              return {
+                id: placeDoc.id,
+                name: placeData.name || "",
+                description: capitalizeFirstLetter(placeData.description || ""),
+                city: placeData.city || "",
+                stateAbbrev: placeData.stateAbbrev || "", 
+              };
+            } else {
+              // console.error(`Location with id ${placeId} not found`);
+              return null;
+            }
+          })
+        );
+  
+        // Filter out any null values in case some places weren't found
+        setPlaces(fetchedPlaces.filter((place) => place !== null));
       } else {
-        const data = await res.json();
-        console.error('Error removing place:', data.error);
+        console.error("Collection not found or not owned by the current user");
       }
+    } catch (error) {
+      console.error("Error fetching places:", error);
+    }
+  };     
+
+  const removePlaceFromCollection = async (placeId: string) => {
+    try {
+      // Fetch the document with the placeId in the nested places collection
+      const placeDocRef = doc(db, "userCollections", collectionId, "places", placeId);
+      const placeDoc = await getDoc(placeDocRef);
+      const locationId = placeDoc.data()?.placeId;
+      // Delete place document nested in users collection
+      await deleteDoc(placeDocRef);
+      // Check if location is part of any other collection
+      const isLocationReferenced = await checkIfLocationReferenced(locationId);
+      if (!isLocationReferenced) {
+        await deleteDoc(doc(db, "locations", locationId));
+        // console.log(`Location ${locationId} deleted from locations collection.`);
+      }
+      // Remove location from state
+      setPlaces((prevPlaces) => prevPlaces.filter((place) => place.id !== placeId));
+      console.log('Place removed successfully.');
     } catch (error) {
       console.error('Error removing place:', error);
     }
+  };
+  
+  // Helper function/ checks if location referenced in any collection 
+  const checkIfLocationReferenced = async (placeId: string) => {
+    const collectionsSnapshot = await getDocs(collection(db, "userCollections"));
+    for (const collectionDoc of collectionsSnapshot.docs) {
+      const placesCollectionRef = collection(collectionDoc.ref, "places");
+      const placesSnapshot = await getDocs(placesCollectionRef);
+      if (placesSnapshot.docs.some((placeDoc) => placeDoc.data().placeId === placeId)) {
+        return true; // Found a reference to this location
+      }
+    }
+    return false; // No references found
   };
 
   return session ? (
@@ -90,24 +131,31 @@ const CollectionPage = () => {
         
       </div>
       {places.length > 0 ? (
-        <ul>
-          {places.map((place) => (
-            <div className="haunts" key={place.id}>
-              <Image className="location-img" src="/images/Location.png" alt="location icon" width={20} height={20} />
-              <li key={place.id}>
-                <h3>{place.name}</h3>
-                <p>{place.description}</p>
-                <p><i>
-                  {place.city && place.state_abbrev ? `${place.city}, ${place.state_abbrev}` : "City, State"}
-                </i></p>
-                <Image onClick={() => removePlaceFromCollection(place.id)} className="remove-btn" src="/images/delete.png" alt="trash icon" width={20} height={20} />
-              </li>
-            </div>
-          ))}
-        </ul>
-      ) : (
-        <p>No places found in this collection.</p>
-      )}
+  <ul>
+    {places.map((place) => (
+      <div className="haunts" key={place.id}>
+        <Image className="location-img" src="/images/Location.png" alt="location icon" width={20} height={20} />
+        <li key={place.id}>
+          <h3>{place.name}</h3>
+          <p>{place.description}</p>
+          <p><i>
+            {place.city && place.stateAbbrev ? `${place.city}, ${place.stateAbbrev}` : "City, State"}
+          </i></p>
+          <Image 
+            onClick={() => removePlaceFromCollection(place.id)} 
+            className="remove-btn" 
+            src="/images/delete.png" 
+            alt="trash icon" 
+            width={20} 
+            height={20} 
+          />
+        </li>
+      </div>
+    ))}
+  </ul>
+) : (
+  <p>No places found in this collection.</p>
+)}
     </div>
   ) : (
     <p>Please log in to view this collection.</p>

@@ -1,31 +1,27 @@
-import db from "@/lib/db";
+import { db } from "@/app/firebaseConfig";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 
 export async function GET(request: Request, { params }: { params: { collectionId: string } }) {
   try {
     const { collectionId } = params;
-    console.log("Fetching places for collectionId:", collectionId);
+    // console.log("Fetching places for collectionId:", collectionId);
 
     // Get collection details for folder name
-    const [collectionDetails]: any = await db.execute(
-      `SELECT name FROM collections WHERE id = ?`,
-      [collectionId]
-    );
+    const collectionDocRef = doc(db, "userCollections", collectionId);
+    const collectionDoc = await getDoc(collectionDocRef);
 
-    if (collectionDetails.length === 0) {
+    if (!collectionDoc.exists()) {
       return new Response(JSON.stringify({ error: "Collection not found" }), { status: 404 });
     }
 
     // Select places in collection
-    const [places]: any = await db.execute(
-      `SELECT locations.id, locations.name, locations.latitude, locations.longitude, locations.description, locations.city, locations.state_abbrev
-       FROM collection_places
-       JOIN locations ON collection_places.place_id = locations.id
-       WHERE collection_places.collection_id = ?`,
-      [collectionId]
-    );
-    console.log("Fetched places and collectionDetails:", places, collectionDetails);
+    const placesCollectionRef = collection(collectionDocRef, "places");
+    const placesSnapshot = await getDocs(placesCollectionRef);
+    const places = placesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-    return new Response(JSON.stringify({ places, collection: collectionDetails[0] }), { status: 200 });
+    // console.log("Fetched places and collectionDetails:", places, collectionDoc.data());
+
+    return new Response(JSON.stringify({ places, collection: collectionDoc.data() }), { status: 200 });
   } catch (error: any) {
     console.error("Error fetching places:", error.message);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });

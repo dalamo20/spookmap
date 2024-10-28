@@ -13,28 +13,30 @@ const Register = () => {
 
     const handleRegistration = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (password !== confirmPassword) {
-            setError("Passwords do not match");
-            return;
+          setError("Passwords do not match");
+          return;
         }
-
+      
         try {
-            const res = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, username, password }),
-            });
-
-            if (!res.ok) {
-                throw new Error(await res.text());
-            }
-            // Redirect to signin if successful
-            router.push("/auth/signin");
+          const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, username, password }),
+          });
+      
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to register');
+          }
+          
+          // Redirect to sign-in page
+          router.push("/auth/signin");
         } catch (error: any) {
-            setError(error.message);
+          console.error("Registration error:", error.message);
+          setError(error.message);
         }
-    };
+      };
 
     return (
         <div className="sign-in-container">

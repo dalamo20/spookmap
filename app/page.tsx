@@ -17,7 +17,7 @@ export default function Welcome() {
     }
   }, [status, router]);
 
-  // Just a loading screen while checking status
+  // Just a loading screen
   if (status === "loading") {
     return <p>Loading...</p>; 
   }

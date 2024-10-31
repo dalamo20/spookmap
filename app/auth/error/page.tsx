@@ -15,6 +15,4 @@ const ErrorPage = () => (
   </Suspense>
 );
 
-export const dynamicPage = 'force-dynamic';  
-
 export default ErrorPage;

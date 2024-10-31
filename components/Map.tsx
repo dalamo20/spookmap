@@ -67,7 +67,7 @@ const Map = () => {
                     lng: -87.6298
                 },
                 zoom: 17, 
-                mapId: "6f36effab0d22861",
+                mapId: "33064c1b99c0442f",
                 mapTypeControl: false, 
             };
 

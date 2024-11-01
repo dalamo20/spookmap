@@ -79,12 +79,11 @@ export const authOptions: NextAuthOptions = {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          // Username in session obj
           session.user.username = userData.username || null;
         } else {
           console.warn(`User document not found for email: ${session.user.email}`);
         }
-        session.user.email_verified = token.email_verified;
+        session.user.email_verified = typeof token.email_verified === "boolean" ? token.email_verified : null;
       }
       return session;
     }

@@ -8,7 +8,8 @@ import { doc, getDoc, collection, getDocs, deleteDoc } from "firebase/firestore"
 
 const CollectionPage = () => {
   const { data: session } = useSession();
-  const { collectionId } = useParams(); 
+  const { collectionId: rawCollectionId } = useParams();
+  const collectionId = Array.isArray(rawCollectionId) ? rawCollectionId[0] : rawCollectionId;
   const [places, setPlaces] = useState<{ id: string, name: string, description: string, city: string, stateAbbrev: string }[]>([]);
   const [collectionName, setCollectionName] = useState<string>("");
 
@@ -27,20 +28,18 @@ const CollectionPage = () => {
     try {
       const collectionDocRef = doc(db, "userCollections", collectionId);
       const collectionDoc = await getDoc(collectionDocRef);
-  
+    
       if (collectionDoc.exists() && collectionDoc.data().userEmail === session?.user.email) {
         setCollectionName(collectionDoc.data()?.name);
-        // Fetch nested places inside the collection
         const placesCollectionRef = collection(collectionDocRef, "places");
         const placesSnapshot = await getDocs(placesCollectionRef);
-  
-        // Fetch details for each place using its placeId
+    
         const fetchedPlaces = await Promise.all(
           placesSnapshot.docs.map(async (placeDoc) => {
             const placeId = placeDoc.data().placeId;
             const locationDocRef = doc(db, "locations", placeId);
             const locationDoc = await getDoc(locationDocRef);
-  
+    
             if (locationDoc.exists()) {
               const placeData = locationDoc.data();
               return {
@@ -51,13 +50,11 @@ const CollectionPage = () => {
                 stateAbbrev: placeData.stateAbbrev || "", 
               };
             } else {
-              // console.error(`Location with id ${placeId} not found`);
               return null;
             }
           })
         );
-  
-        // Filter out any null values in case some places weren't found
+    
         setPlaces(fetchedPlaces.filter((place) => place !== null));
       } else {
         console.error("Collection not found or not owned by the current user");
@@ -65,7 +62,7 @@ const CollectionPage = () => {
     } catch (error) {
       console.error("Error fetching places:", error);
     }
-  };     
+  };  
 
   const removePlaceFromCollection = async (placeId: string) => {
     try {

@@ -35,7 +35,7 @@ interface Place {
     }
   };  
 
-const libraries = ["core", "maps", "places", "marker", "geometry"] as const;
+const libraries: string[] = ["core", "maps", "places", "marker", "geometry"] as const;
 
 const Map = () => {
     const { data: session } = useSession();

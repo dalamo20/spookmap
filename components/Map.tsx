@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { Library, Loader } from '@googlemaps/js-api-loader';
 import { useSession } from 'next-auth/react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import hauntedPlaces from '../public/haunted_places.json';
@@ -36,7 +35,7 @@ interface Place {
     }
   };  
 
-const libraries: Library[] = ["core", "maps", "places", "marker", "geometry"];
+const libraries = ["core", "maps", "places", "marker", "geometry"] as const;
 
 const Map = () => {
     const { data: session } = useSession();

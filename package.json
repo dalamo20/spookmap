@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@googlemaps/js-api-loader": "^1.16.8",
     "@hookform/resolvers": "^3.9.0",
     "@react-google-maps/api": "^2.19.3",
     "@types/bcrypt": "^5.0.2",

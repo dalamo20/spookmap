@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSession } from 'next-auth/react';
-import { useJsApiLoader } from '@react-google-maps/api';
+import { Libraries, useJsApiLoader } from '@react-google-maps/api';
 import hauntedPlaces from '../public/haunted_places.json';
 import { db } from '../app/firebaseConfig';
 import { collection, addDoc, Timestamp } from "firebase/firestore";
@@ -35,7 +35,7 @@ interface Place {
     }
   };  
 
-const libraries: string[] = ["core", "maps", "places", "marker", "geometry"] as const;
+const libraries: Libraries = ["core", "maps", "places", "marker", "geometry"];
 
 const Map = () => {
     const { data: session } = useSession();

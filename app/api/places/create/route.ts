@@ -1,4 +1,4 @@
-import { db } from "@/app/firebaseConfig";
+import { db } from "../../../firebaseConfig";
 import { doc, collection, getDoc, addDoc, query, where, getDocs, setDoc } from "firebase/firestore";
 
 export async function POST(request: Request) {

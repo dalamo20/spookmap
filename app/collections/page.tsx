@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { db } from "@/app/firebaseConfig";
+import { db } from "../firebaseConfig";
 import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc, where, query } from "firebase/firestore";
 
 const Collections = () => {

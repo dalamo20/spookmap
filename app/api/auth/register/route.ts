@@ -1,4 +1,4 @@
-import { db } from '@/app/firebaseConfig';
+import { db } from '../../../firebaseConfig'; 
 import { collection, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import bcrypt from "bcrypt";
 

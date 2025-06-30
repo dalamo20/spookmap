@@ -1,4 +1,4 @@
-import { db } from "@/app/firebaseConfig";
+import { db } from "../../../../firebaseConfig"; 
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 
 export async function GET(request: Request, { params }: { params: { collectionId: string } }) {

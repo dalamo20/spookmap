@@ -5,8 +5,7 @@ import { Library, Loader } from '@googlemaps/js-api-loader';
 import { useSession } from 'next-auth/react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import hauntedPlaces from '../public/haunted_places.json';
-import Image from 'next/image';
-import { db } from '@/app/firebaseConfig';
+import { db } from '../app/firebaseConfig';
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 interface Place {
@@ -51,9 +50,10 @@ const Map = () => {
     const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
 
     const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-        libraries
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+        libraries,
     });
+
 
     const mapRef = React.useRef<HTMLDivElement>(null);
     const placeAutoCompRef = React.useRef<HTMLInputElement>(null);

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Image from 'next/image';
-import { db } from "@/app/firebaseConfig";
+import { db } from "../../firebaseConfig";
 import { doc, getDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
 
 const CollectionPage = () => {
